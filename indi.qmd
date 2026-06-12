@@ -1,0 +1,146 @@
+---
+title: "Info"
+author: "VH and ET"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# library packages 
+```{r}
+install.packages("qpdf")
+library(qpdf)
+```
+
+# Dividir pdf
+```{r}
+
+dir.create("indi", showWarnings = FALSE)
+
+pdfs <- pdf_split("Catálogo de Quinua.pdf")
+
+file.rename(
+  from = pdfs,
+  to = file.path(
+    "indi",
+    paste0("quinoa_", seq_along(pdfs), ".pdf")
+  )
+)
+
+```
+
+# Extraer links 
+```{r}
+library(writexl)
+
+pdfs <- list.files("indi", pattern = "\\.pdf$", full.names = FALSE)
+
+orden <- as.numeric(gsub(".*_(\\d+)\\.pdf$", "\\1", pdfs))
+pdfs <- pdfs[order(orden)]
+
+usuario <- "Vyxugo"
+repo <- "Cat"
+
+links <- paste0(
+  "https://raw.githubusercontent.com/",
+  usuario,
+  "/",
+  repo,
+  "/main/indi/",
+  pdfs
+)
+
+links_viewer <- paste0(
+  "https://mozilla.github.io/pdf.js/web/viewer.html?file=",
+  URLencode(links, reserved = TRUE)
+)
+
+tabla_links <- data.frame(
+  pdf = pdfs,
+  link = links_viewer,
+  stringsAsFactors = FALSE
+)
+
+write_xlsx(tabla_links, "links.xlsx")
+```
+
+# ETiquetas
+
+```{r}
+source('https://inkaverse.com/setup.r')
+library(readxl)
+fb <- read_excel("links.xlsx")
+
+url <- "https://docs.google.com/spreadsheets/d/1Rq304iX6UYhdvwDt7oaQHAIpIgtWKvEJb3WreFOw0Fw/edit?gid=1232684288#gid=1232684288"
+gs <- as_sheets_id(url)
+
+fb1 <- range_read(gs, sheet = "STable1") 
+
+```
+
+```{r}
+library(huito)
+
+font <- c("Permanent Marker", "Alfa Slab One", "Courgette")
+
+huito_fonts(font)
+
+label <- fb1 %>%
+  label_layout(size = c(5 , 4)
+               , border_color = "#003769"
+               , border_width = 1
+              )  %>%
+    include_image(value = "plant.png"
+                , size = c(5, 3.8)
+                , position = c(2.5, 2)
+                ) %>% 
+  include_image(value = "https://app.untrm.edu.pe/UNTRM/assets/images/logo-untrm-full.png"
+                , size = c(2.5, 2)
+                , position = c(1.3, 3.5)
+                ) %>% 
+   include_image(value = "image_panoja"
+                , size = c(1, 2)
+                , position = c(0.65, 1.8)
+                ) %>% 
+  include_image(value = "image_seed"
+                , size = c(1, 2)
+                , position = c(4.3, 1.7)
+                ) %>%
+  include_text(value= "UNTRM code"
+               , size= 4
+               , position = c(4,3.5)
+               , color = "black"
+               , font = font[2]
+               , fontface = "bold"
+                ) %>% 
+ include_barcode(value = "qr"
+             , size =c(2.2, 2.2) 
+             , position = c(2.5,1.9)
+                         ) %>% 
+include_text(value= "Lugar:\n\n Lonya Chico"
+               , size= 4
+               , position = c(1,0.35)
+               , color = "black"
+               , font = font[2]
+               , fontface = "bold"
+                ) %>% 
+  include_text(value= "Campaña:\n\n 2025"
+               , size= 4
+               , position = c(2.75,0.35)
+               , color = "black"
+               , font = font[2]
+               , fontface = "bold"
+                ) %>% 
+    include_text(value= "Chenopodium\n quinoa"
+               , fontface = "bold" 
+               , size= 4
+               , position = c(4.4,0.35)
+               , color = "black"
+               , font = font[3]
+               )
+             
+label %>% label_print()
+
+label %>%
+  label_print(mode = "complete", filename = "lables", nlabels= 140)
+```
