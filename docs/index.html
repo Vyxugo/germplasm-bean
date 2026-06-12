@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo de Frijol</title>
+  <link rel="stylesheet" href="estilos.css" />
+</head>
+<body>
+
+  <main id="libro">
+    <!-- ===================== -->
+    <!-- PORTADA -->
+    <!-- ===================== -->
+    <section class="pagina portada">
+      <div class="header">
+        <img src="img/untrm.png" class="logo-left" alt="UNTRM" />
+        <img src="img/ceigras_logo.jpeg" class="logo-right" alt="CEIGRAS" />
+      </div>
+
+      <div class="hero">
+        <img src="img/frijol.jpg" class="bg" alt="Portada frijol" />
+        <div class="overlay"></div>
+
+        <div class="contenido">
+          <p class="mini">CATÁLOGO DE</p>
+          <div class="linea"></div>
+          <h1>FRIJOL</h1>
+          <div class="linea"></div>
+          <p class="sub">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== -->
+    <!-- SEGUNDA HOJA -->
+    <!-- ===================== -->
+    <section class="pagina segunda-hoja">
+      <img src="img/frijol 2.jpg" class="fondo-segunda" alt="Frijol 2" />
+      <div class="capa-azul"></div>
+
+      <div class="contenido-segunda">
+        <p class="encabezado-superior">
+          UNIVERSIDAD NACIONAL TORIBIO RODRÍGUEZ DE MENDOZA DE AMAZONAS<br />
+          CENTRO DE INVESTIGACIÓN EN GRANOS Y SEMILLAS CEIGRAS
+        </p>
+
+        <div class="bloque-titulo">
+          <p class="catalogo">CATÁLOGO DE</p>
+          <div class="linea linea-centro"></div>
+          <h1 class="titulo-segunda">FRIJOL</h1>
+          <div class="linea linea-centro"></div>
+          <p class="subtitulo">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SHEET_ID = "11rJovQ1AwHI8HY6OiA1ZPfgrHvzC_aj9oCK7B9wfF_Y";
+    const SHEET_NAME = "catalago"; 
+
+    const SHEET_URL =
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=out:json`;
+  
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function crearIdFicha(codigo) {
+      return String(codigo || "SIN-CODIGO")
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9_-]/g, "-");
+    }
+
+    function irAFichaPorHash() {
+      if (!window.location.hash) return;
+
+      const id = decodeURIComponent(window.location.hash.substring(1));
+      const ficha = document.getElementById(id);
+
+      if (ficha) {
+        ficha.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function normalizeKey(text) {
+      return String(text || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function getCellValue(cell) {
+      if (!cell) return "";
+      return cell.v ?? "";
+    }
+
+    function getHeaderName(col, index) {
+      return normalizeKey(col.label || col.id || `COL_${index}`);
+    }
+
+    function rowToObject(headers, row) {
+      const obj = {};
+      headers.forEach((header, index) => {
+        obj[header] = getCellValue(row.c?.[index]);
+      });
+      return obj;
+    }
+
+    function getField(item, ...names) {
+      for (const name of names) {
+        const key = normalizeKey(name);
+        const value = item[key];
+        if (value !== undefined && value !== null && String(value).trim() !== "") {
+          return value;
+        }
+      }
+      return "";
+    }
+
+    function contarCamposConInfo(item) {
+      let total = 0;
+      for (const key in item) {
+        const value = item[key];
+        if (value !== null && value !== undefined && String(value).trim() !== "") {
+          total += 1;
+        }
+      }
+      return total;
+    }
+
+    function renderDescriptor(nombre, valor) {
+      if (valor === null || valor === undefined || String(valor).trim() === "") {
+        return "";
+      }
+
+      return `
+        <tr>
+          <td class="desc-label">${nombre}</td>
+          <td class="desc-value">${valor}</td>
+        </tr>
+      `;
+    }
+
+    function renderImageBox(src, alt) {
+      if (!src || String(src).trim() === "") {
+        return `
+          <div class="foto-vacia">
+            <span>Sin imagen</span>
+          </div>
+        `;
+      }
+
+      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" />`;
+    }
+
+    async function createFicha(item, numeroPagina) {
+      const codigo = getField(item, "UNTRM code", "UNTRM CODE", "CODE");
+      const idFicha = crearIdFicha(codigo);
+
+      const image1 = getField(item, "image_panoja", "IMAGE_PANOJA");
+      const image2 = getField(item, "image_seed", "IMAGE_SEED");
+      const image3 = getField(item, "image_3", "IMAGE_3");
+      const image4 = getField(item, "image_4", "IMAGE_4");
+
+      const tablaColeccion = [
+        renderDescriptor("Nombre Científico", getField(item, "Nombre Científico") || "<em>Phaseolus vulgaris</em> "),
+        renderDescriptor("Nombre Común", getField(item, "Nombre Común") || "Frijol"),
+        renderDescriptor("Código UNTRM", codigo || "SIN CÓDIGO"),
+        renderDescriptor(
+          "Zona agroecológica",
+          getField(item, "AGROECOLOGICAL ZONES", "agroecological zones") || "Norte andino"
+        ),
+        renderDescriptor("Departamento", getField(item, "DEPARTAMENTO") || "Amazonas"),
+        renderDescriptor("Provincia", getField(item, "PROVINCIA") || "Chachapoyas"),
+        renderDescriptor("Distrito", getField(item, "DISTRITO") || "Molinopampa"),
+        renderDescriptor("Localidad", getField(item, "LOCALIDAD") || "EE. Molinopampa"),
+        renderDescriptor("Altitud", getField(item, "ALTITUD") || "2400 m.s.n.m.")
+      ].join("");
+
+      // Descriptores cuantitativos ordenados: fenología → crecimiento → vaina → semilla → rendimiento
+      const tablaCuantitativos = [
+        // Fenología
+        renderDescriptor("Días al 50% de la floración (días)", getField(item, "DF")),
+        renderDescriptor("Días hasta EL 50% de la madurez (días)", getField(item, "DPM")),
+        renderDescriptor("Días al 100% de la madurez (días)", getField(item, "FD")),
+        renderDescriptor("Contenido de clorofila al 50% de floración", getField(item, "SPAD")),
+
+        // Crecimiento
+        renderDescriptor("Altura de la planta al 50% de floración (cm)", getField(item, "PHF")),
+        renderDescriptor("Altura de la planta al 100% de madurez (cm)", getField(item, "PHM")),
+        renderDescriptor("Diámetro del tallo (mm)", getField(item, "SD")),
+        renderDescriptor("Número de racimos florales por planta", getField(item, "NFRP")),
+
+        // Vaina
+        renderDescriptor("Longitud de la vaina (mm)", getField(item, "PL")),
+        renderDescriptor("Número de vainas por planta", getField(item, "PPP")),
+        renderDescriptor("Anchura de vaina (mm)", getField(item, "PW")),
+        renderDescriptor("Número de semillas por vaina", getField(item, "SPP")),
+
+        // Semilla
+        renderDescriptor("Peso de la semilla (g)", getField(item, "SW")),
+        renderDescriptor("Longitud de la vaina (mm)", getField(item, "SL")),
+        renderDescriptor("Ancho de la semilla (mm)", getField(item, "SWD")),
+
+        // Rendimiento
+        renderDescriptor("Redimiento por planta (g)", getField(item, "YPP"))
+      ].join("");
+
+      // Descriptores cualitativos ordenados: emergencia → arquitectura → vaina → semilla
+      const tablaCualitativos = [
+        // Emergencia
+        renderDescriptor("Color cotiledón emergente", getField(item, "ECC")),
+
+        // Arquitectura
+        renderDescriptor("Habito de crecimiento", getField(item, "GH")),
+        renderDescriptor("Persistencia de las hojas", getField(item, "LP")),
+
+        // Flor
+        renderDescriptor("Color del estandarte", getField(item, "SPC")),
+        renderDescriptor("Color del ala", getField(item, "WC")),
+
+        // Vaina
+        renderDescriptor("Posición de las vainas", getField(item, "PP")),
+        renderDescriptor("Curvatura de la vaina", getField(item, "PC")),
+        renderDescriptor("Color de la vaina", getField(item, "PCO")),
+        renderDescriptor("Color de la vaina en la madurez fisiológica", getField(item, "PCPM")),
+        renderDescriptor("Color de la vaina seca", getField(item, "DPC")),
+
+        // Semilla
+        renderDescriptor("Patrones de la cubierta de la semilla", getField(item, "SCP")),
+        renderDescriptor("Cubierta de la semilla de color más oscuro", getField(item, "DSCC")),
+        renderDescriptor("Cubierta de la semilla de color más claro", getField(item, "LSCC")),
+        renderDescriptor("Forma de la semilla", getField(item, "SS"))
+      ].join("");
+
+      return `
+        <section id="${idFicha}" class="pagina ficha-frijol ficha-organizada" data-codigo="${escapeHtml(codigo || "SIN CÓDIGO")}">
+          <div class="ficha-wrap">
+            <div class="marca-superior"></div>
+
+            <div class="ficha-topbar">
+              <div class="topbar-texto">Banco de Germoplasma de la UNTRM</div>
+            </div>
+
+            <div class="codigo-principal">${escapeHtml(codigo || "SIN CÓDIGO")}</div>
+
+            <div class="ficha-grid">
+              <!-- IZQUIERDA -->
+              <div class="columna col-izq">
+                <div class="cuadro cuadro-coleccion">
+                  <div class="cuadro-titulo">DATOS DE COLECCIÓN</div>
+                  <div class="cuadro-contenido">
+                    <table class="tabla-descriptores">
+                      <tbody>${tablaColeccion}</tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="bloque-imagen-vertical">
+                  ${renderImageBox(image1, "Imagen 1")}
+                </div>
+              </div>
+
+              <!-- CENTRO -->
+              <div class="columna col-centro">
+                <div class="fila-superior-imagenes">
+                  <div class="imagen-top">${renderImageBox(image2, "Imagen 2")}</div>
+                  <div class="imagen-top">${renderImageBox(image3, "Imagen 3")}</div>
+                </div>
+
+                <div class="cuadro cuadro-cuantitativos">
+                  <div class="cuadro-titulo">DESCRIPTORES CUANTITATIVOS</div>
+                  <div class="cuadro-contenido">
+                    <table class="tabla-descriptores">
+                      <tbody>${tablaCuantitativos}</tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DERECHA -->
+              <div class="columna col-der">
+                <div class="cuadro cuadro-cualitativos">
+                  <div class="cuadro-titulo">DESCRIPTORES CUALITATIVOS</div>
+                  <div class="cuadro-contenido">
+                    <table class="tabla-descriptores">
+                      <tbody>${tablaCualitativos}</tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="bloque-imagen-horizontal">
+                  ${renderImageBox(image4, "Imagen 4")}
+                </div>
+              </div>
+            </div>
+
+            <div class="ficha-footer">
+              <div class="footer-left">Catálogo de frijol del Banco de Germoplasma de la UNTRM</div>
+              <div class="footer-page">${numeroPagina}</div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    async function cargarDatos() {
+      const response = await fetch(SHEET_URL);
+      const raw = await response.text();
+      const json = JSON.parse(raw.substring(47).slice(0, -2));
+
+      const cols = json.table.cols || [];
+      const rows = json.table.rows || [];
+
+      const headers = cols.map(getHeaderName);
+      return rows.map(row => rowToObject(headers, row));
+    }
+
+    async function iniciar() {
+      try {
+        const datos = await cargarDatos();
+        const libro = document.getElementById("libro");
+        let pagina = 3;
+
+        for (const item of datos) {
+          const totalConInfo = contarCamposConInfo(item);
+          if (totalConInfo >= 5) {
+            const fichaHtml = await createFicha(item, pagina);
+            libro.insertAdjacentHTML("beforeend", fichaHtml);
+            pagina += 1;
+          }
+        }
+        setTimeout(irAFichaPorHash, 300);
+      } catch (error) {
+        console.error("Error al cargar la hoja:", error);
+      }
+    }
+
+    window.addEventListener("hashchange", irAFichaPorHash);
+
+    iniciar();
+  </script>
+</body>
+</html>
