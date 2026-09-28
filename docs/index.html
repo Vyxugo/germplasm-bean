@@ -4,65 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catálogo de Frijol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
 
-  <main id="libro">
-    <!-- ===================== -->
-    <!-- PORTADA -->
-    <!-- ===================== -->
-    <section class="pagina portada">
-      <div class="header">
-        <img src="img/untrm.png" class="logo-left" alt="UNTRM" />
-        <img src="img/ceigras_logo.jpeg" class="logo-right" alt="CEIGRAS" />
-      </div>
-
-      <div class="hero">
-        <img src="img/frijol.jpg" class="bg" alt="Portada frijol" />
-        <div class="overlay"></div>
-
-        <div class="contenido">
-          <p class="mini">CATÁLOGO DE</p>
-          <div class="linea"></div>
-          <h1>FRIJOL</h1>
-          <div class="linea"></div>
-          <p class="sub">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+  <div class="libro-viewport">
+    <main id="libro">
+      <!-- ===================== -->
+      <!-- PORTADA -->
+      <!-- ===================== -->
+      <section class="pagina portada">
+        <div class="header">
+          <img src="img/untrm.png" class="logo-left" alt="UNTRM" />
+          <img src="img/ceigras_logo.jpeg" class="logo-right" alt="CEIGRAS" />
         </div>
-      </div>
-    </section>
 
-    <!-- ===================== -->
-    <!-- SEGUNDA HOJA -->
-    <!-- ===================== -->
-    <section class="pagina segunda-hoja">
-      <img src="img/frijol 2.jpg" class="fondo-segunda" alt="Frijol 2" />
-      <div class="capa-azul"></div>
+        <div class="hero">
+          <img src="img/frijol.jpg" class="bg" alt="Portada frijol" />
+          <div class="overlay"></div>
 
-      <div class="contenido-segunda">
-        <p class="encabezado-superior">
-          UNIVERSIDAD NACIONAL TORIBIO RODRÍGUEZ DE MENDOZA DE AMAZONAS<br />
-          CENTRO DE INVESTIGACIÓN EN GRANOS Y SEMILLAS CEIGRAS
-        </p>
-
-        <div class="bloque-titulo">
-          <p class="catalogo">CATÁLOGO DE</p>
-          <div class="linea linea-centro"></div>
-          <h1 class="titulo-segunda">FRIJOL</h1>
-          <div class="linea linea-centro"></div>
-          <p class="subtitulo">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+          <div class="contenido">
+            <p class="mini">CATÁLOGO DE</p>
+            <div class="linea"></div>
+            <h1>FRIJOL</h1>
+            <div class="linea"></div>
+            <p class="sub">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+
+      <!-- ===================== -->
+      <!-- SEGUNDA HOJA (se moverá al final por JS, después de generar las fichas) -->
+      <!-- ===================== -->
+      <section class="pagina segunda-hoja">
+        <img src="img/frijol 2.jpg" class="fondo-segunda" alt="Frijol 2" />
+        <div class="capa-azul"></div>
+
+        <div class="contenido-segunda">
+          <p class="encabezado-superior">
+            UNIVERSIDAD NACIONAL TORIBIO RODRÍGUEZ DE MENDOZA DE AMAZONAS<br />
+            CENTRO DE INVESTIGACIÓN EN GRANOS Y SEMILLAS CEIGRAS
+          </p>
+
+          <div class="bloque-titulo">
+            <p class="catalogo">CATÁLOGO DE</p>
+            <div class="linea linea-centro"></div>
+            <h1 class="titulo-segunda">FRIJOL</h1>
+            <div class="linea linea-centro"></div>
+            <p class="subtitulo">DEL BANCO DE GERMOPLASMA DE LA UNTRM</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
     const SHEET_ID = "11rJovQ1AwHI8HY6OiA1ZPfgrHvzC_aj9oCK7B9wfF_Y";
-    const SHEET_NAME = "catalago"; 
+    const SHEET_NAME = "catalago";
 
     const SHEET_URL =
       `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=out:json`;
-  
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -77,17 +82,6 @@
         .trim()
         .replace(/\s+/g, "-")
         .replace(/[^a-zA-Z0-9_-]/g, "-");
-    }
-
-    function irAFichaPorHash() {
-      if (!window.location.hash) return;
-
-      const id = decodeURIComponent(window.location.hash.substring(1));
-      const ficha = document.getElementById(id);
-
-      if (ficha) {
-        ficha.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
 
     function normalizeKey(text) {
@@ -185,56 +179,36 @@
         renderDescriptor("Altitud", getField(item, "ALTITUD") || "2400 m.s.n.m.")
       ].join("");
 
-      // Descriptores cuantitativos ordenados: fenología → crecimiento → vaina → semilla → rendimiento
       const tablaCuantitativos = [
-        // Fenología
         renderDescriptor("Días al 50% de la floración (días)", getField(item, "DF")),
         renderDescriptor("Días hasta EL 50% de la madurez (días)", getField(item, "DPM")),
         renderDescriptor("Días al 100% de la madurez (días)", getField(item, "FD")),
         renderDescriptor("Contenido de clorofila al 50% de floración", getField(item, "SPAD")),
-
-        // Crecimiento
         renderDescriptor("Altura de la planta al 50% de floración (cm)", getField(item, "PHF")),
         renderDescriptor("Altura de la planta al 100% de madurez (cm)", getField(item, "PHM")),
         renderDescriptor("Diámetro del tallo (mm)", getField(item, "SD")),
         renderDescriptor("Número de racimos florales por planta", getField(item, "NFRP")),
-
-        // Vaina
         renderDescriptor("Longitud de la vaina (mm)", getField(item, "PL")),
         renderDescriptor("Número de vainas por planta", getField(item, "PPP")),
         renderDescriptor("Anchura de vaina (mm)", getField(item, "PW")),
         renderDescriptor("Número de semillas por vaina", getField(item, "SPP")),
-
-        // Semilla
         renderDescriptor("Peso de la semilla (g)", getField(item, "SW")),
         renderDescriptor("Longitud de la vaina (mm)", getField(item, "SL")),
         renderDescriptor("Ancho de la semilla (mm)", getField(item, "SWD")),
-
-        // Rendimiento
         renderDescriptor("Redimiento por planta (g)", getField(item, "YPP"))
       ].join("");
 
-      // Descriptores cualitativos ordenados: emergencia → arquitectura → vaina → semilla
       const tablaCualitativos = [
-        // Emergencia
         renderDescriptor("Color cotiledón emergente", getField(item, "ECC")),
-
-        // Arquitectura
         renderDescriptor("Habito de crecimiento", getField(item, "GH")),
         renderDescriptor("Persistencia de las hojas", getField(item, "LP")),
-
-        // Flor
         renderDescriptor("Color del estandarte", getField(item, "SPC")),
         renderDescriptor("Color del ala", getField(item, "WC")),
-
-        // Vaina
         renderDescriptor("Posición de las vainas", getField(item, "PP")),
         renderDescriptor("Curvatura de la vaina", getField(item, "PC")),
         renderDescriptor("Color de la vaina", getField(item, "PCO")),
         renderDescriptor("Color de la vaina en la madurez fisiológica", getField(item, "PCPM")),
         renderDescriptor("Color de la vaina seca", getField(item, "DPC")),
-
-        // Semilla
         renderDescriptor("Patrones de la cubierta de la semilla", getField(item, "SCP")),
         renderDescriptor("Cubierta de la semilla de color más oscuro", getField(item, "DSCC")),
         renderDescriptor("Cubierta de la semilla de color más claro", getField(item, "LSCC")),
@@ -324,11 +298,223 @@
       return rows.map(row => rowToObject(headers, row));
     }
 
+    /* =========================================================
+       LIBRO / VISOR (nuevo)
+       - Muestra una sola página a la vez (como un libro real)
+       - La "segunda hoja" se mueve al final, después de las fichas
+       ========================================================= */
+
+    let paginasLibro = [];
+    let indiceActual = 0;
+
+    /* ---- Sonido de "pasar página" (sintetizado, sin archivos externos) ---- */
+    let audioCtx = null;
+
+    function obtenerAudioCtx() {
+      if (!audioCtx) {
+        const AudioContextRef = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextRef) return null;
+        audioCtx = new AudioContextRef();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function reproducirSonidoPagina() {
+      const ctx = obtenerAudioCtx();
+      if (!ctx) return;
+
+      try {
+        const ahora = ctx.currentTime;
+
+        // 1) Deslizamiento de la hoja (sube y baja de intensidad, como un "swish")
+        const duracionSwish = 0.22;
+        const bufferSwish = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duracionSwish), ctx.sampleRate);
+        const dataSwish = bufferSwish.getChannelData(0);
+        for (let i = 0; i < dataSwish.length; i++) {
+          const envolvente = Math.sin((i / dataSwish.length) * Math.PI);
+          dataSwish[i] = (Math.random() * 2 - 1) * envolvente;
+        }
+
+        const swish = ctx.createBufferSource();
+        swish.buffer = bufferSwish;
+
+        const filtroSwish = ctx.createBiquadFilter();
+        filtroSwish.type = "bandpass";
+        filtroSwish.Q.value = 0.7;
+        filtroSwish.frequency.setValueAtTime(1400, ahora);
+        filtroSwish.frequency.exponentialRampToValueAtTime(3200, ahora + duracionSwish * 0.6);
+        filtroSwish.frequency.exponentialRampToValueAtTime(1200, ahora + duracionSwish);
+
+        const ganSwish = ctx.createGain();
+        ganSwish.gain.setValueAtTime(0.0001, ahora);
+        ganSwish.gain.exponentialRampToValueAtTime(0.4, ahora + 0.05);
+        ganSwish.gain.exponentialRampToValueAtTime(0.0001, ahora + duracionSwish);
+
+        swish.connect(filtroSwish).connect(ganSwish).connect(ctx.destination);
+        swish.start(ahora);
+        swish.stop(ahora + duracionSwish);
+
+        // 2) Pequeño "toque" cuando la hoja se asienta
+        const retardo = duracionSwish * 0.7;
+        const duracionToque = 0.06;
+        const bufferToque = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duracionToque), ctx.sampleRate);
+        const dataToque = bufferToque.getChannelData(0);
+        for (let i = 0; i < dataToque.length; i++) {
+          dataToque[i] = (Math.random() * 2 - 1) * (1 - i / dataToque.length);
+        }
+
+        const toque = ctx.createBufferSource();
+        toque.buffer = bufferToque;
+
+        const filtroToque = ctx.createBiquadFilter();
+        filtroToque.type = "lowpass";
+        filtroToque.frequency.value = 900;
+
+        const ganToque = ctx.createGain();
+        ganToque.gain.setValueAtTime(0.0001, ahora + retardo);
+        ganToque.gain.exponentialRampToValueAtTime(0.25, ahora + retardo + 0.01);
+        ganToque.gain.exponentialRampToValueAtTime(0.0001, ahora + retardo + duracionToque);
+
+        toque.connect(filtroToque).connect(ganToque).connect(ctx.destination);
+        toque.start(ahora + retardo);
+        toque.stop(ahora + retardo + duracionToque);
+      } catch (error) {
+        console.warn("No se pudo reproducir el sonido de página:", error);
+      }
+    }
+
+    function moverSegundaHojaAlFinal(numeroPaginaFinal) {
+      const libro = document.getElementById("libro");
+      const segunda = libro.querySelector(".segunda-hoja");
+      if (!segunda) return;
+
+      // Le agregamos un número de página, igual que a las fichas,
+      // para que quede como "página de cierre" del libro.
+      if (!segunda.querySelector(".pagina-cierre-numero")) {
+        const numero = document.createElement("div");
+        numero.className = "footer-page pagina-cierre-numero";
+        numero.textContent = numeroPaginaFinal;
+        segunda.appendChild(numero);
+      }
+
+      libro.appendChild(segunda);
+    }
+
+    function crearControlesVisor() {
+      if (document.querySelector(".controles-libro")) return;
+
+      const controles = document.createElement("div");
+      controles.className = "controles-libro";
+      controles.innerHTML = `
+        <button type="button" class="btn-libro btn-anterior" aria-label="Página anterior">&#10094;</button>
+        <div class="contador-libro"></div>
+        <button type="button" class="btn-libro btn-siguiente" aria-label="Página siguiente">&#10095;</button>
+      `;
+      document.body.appendChild(controles);
+
+      controles.querySelector(".btn-anterior").addEventListener("click", irPaginaAnterior);
+      controles.querySelector(".btn-siguiente").addEventListener("click", irPaginaSiguiente);
+    }
+
+    function irPaginaAnterior() {
+      if (indiceActual > 0) mostrarPagina(indiceActual - 1);
+    }
+
+    function irPaginaSiguiente() {
+      if (indiceActual < paginasLibro.length - 1) mostrarPagina(indiceActual + 1);
+    }
+
+    function mostrarPagina(indice, conSonido = true) {
+      const paginaAnterior = paginasLibro[indiceActual];
+      const paginaNueva = paginasLibro[indice];
+      if (!paginaNueva) return;
+
+      const huboCambio = paginaAnterior && paginaAnterior !== paginaNueva;
+
+      paginasLibro.forEach(p => p.classList.remove("pagina-activa", "pagina-entrando"));
+
+      if (huboCambio) {
+        paginaAnterior.classList.add("pagina-saliendo");
+        setTimeout(() => paginaAnterior.classList.remove("pagina-saliendo"), 260);
+      }
+
+      paginaNueva.classList.add("pagina-activa", "pagina-entrando");
+      indiceActual = indice;
+
+      if (conSonido && huboCambio) {
+        reproducirSonidoPagina();
+      }
+
+      history.replaceState(null, "", "#" + encodeURIComponent(paginaNueva.id || ""));
+      actualizarContadorLibro();
+      actualizarBotonesLibro();
+    }
+
+    function actualizarContadorLibro() {
+      const contador = document.querySelector(".contador-libro");
+      if (contador) contador.textContent = `${indiceActual + 1} / ${paginasLibro.length}`;
+    }
+
+    function actualizarBotonesLibro() {
+      const btnAnterior = document.querySelector(".btn-anterior");
+      const btnSiguiente = document.querySelector(".btn-siguiente");
+      if (btnAnterior) btnAnterior.disabled = indiceActual === 0;
+      if (btnSiguiente) btnSiguiente.disabled = indiceActual === paginasLibro.length - 1;
+    }
+
+    function ajustarEscalaLibro() {
+      const libro = document.getElementById("libro");
+      const cmAPx = 37.7952755906;
+      const anchoPagina = 29.7 * cmAPx;
+      const altoPagina = 21.7 * cmAPx;
+      const margenLateral = 40;
+      const margenControles = 110;
+
+      const escalaAncho = (window.innerWidth - margenLateral) / anchoPagina;
+      const escalaAlto = (window.innerHeight - margenControles) / altoPagina;
+      const escala = Math.min(escalaAncho, escalaAlto, 1);
+
+      libro.style.transform = `scale(${escala})`;
+    }
+
+    function inicializarVisorLibro() {
+      const libro = document.getElementById("libro");
+      paginasLibro = Array.from(libro.querySelectorAll(".pagina"));
+
+      crearControlesVisor();
+      ajustarEscalaLibro();
+
+      let indiceInicial = 0;
+      if (window.location.hash) {
+        const id = decodeURIComponent(window.location.hash.substring(1));
+        const idx = paginasLibro.findIndex(p => p.id === id);
+        if (idx >= 0) indiceInicial = idx;
+      }
+
+      mostrarPagina(indiceInicial, false);
+
+      window.addEventListener("resize", ajustarEscalaLibro);
+
+      window.addEventListener("hashchange", () => {
+        const id = decodeURIComponent(window.location.hash.substring(1));
+        const idx = paginasLibro.findIndex(p => p.id === id);
+        if (idx >= 0) mostrarPagina(idx);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") irPaginaSiguiente();
+        if (e.key === "ArrowLeft") irPaginaAnterior();
+      });
+    }
+
     async function iniciar() {
       try {
         const datos = await cargarDatos();
         const libro = document.getElementById("libro");
-        let pagina = 3;
+        let pagina = 2; // la portada ya es la página 1
 
         for (const item of datos) {
           const totalConInfo = contarCamposConInfo(item);
@@ -338,13 +524,16 @@
             pagina += 1;
           }
         }
-        setTimeout(irAFichaPorHash, 300);
+
+        // Recién ahora que ya se generaron todas las fichas del Google Sheet,
+        // movemos la "segunda hoja" al final del libro.
+        moverSegundaHojaAlFinal(pagina);
+
+        inicializarVisorLibro();
       } catch (error) {
         console.error("Error al cargar la hoja:", error);
       }
     }
-
-    window.addEventListener("hashchange", irAFichaPorHash);
 
     iniciar();
   </script>

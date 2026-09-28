@@ -1,6 +1,6 @@
 ---
 title: "Info"
-author: "VH and ET"
+author: "WMM and VH"
 format: html
 editor_options: 
   chunk_output_type: console
@@ -8,7 +8,6 @@ editor_options:
 
 # library packages 
 ```{r}
-install.packages("qpdf")
 library(qpdf)
 ```
 
@@ -17,13 +16,13 @@ library(qpdf)
 
 dir.create("indi", showWarnings = FALSE)
 
-pdfs <- pdf_split("Catálogo de Quinua.pdf")
+pdfs <- pdf_split("Catálogo de Frijol.pdf")
 
 file.rename(
   from = pdfs,
   to = file.path(
     "indi",
-    paste0("quinoa_", seq_along(pdfs), ".pdf")
+    paste0("frijol_", seq_along(pdfs), ".pdf")
   )
 )
 
@@ -39,7 +38,7 @@ orden <- as.numeric(gsub(".*_(\\d+)\\.pdf$", "\\1", pdfs))
 pdfs <- pdfs[order(orden)]
 
 usuario <- "Vyxugo"
-repo <- "Cat"
+repo <- "germplasm-bean"
 
 links <- paste0(
   "https://raw.githubusercontent.com/",
@@ -69,12 +68,10 @@ write_xlsx(tabla_links, "links.xlsx")
 ```{r}
 source('https://inkaverse.com/setup.r')
 library(readxl)
-fb <- read_excel("links.xlsx")
-
-url <- "https://docs.google.com/spreadsheets/d/1Rq304iX6UYhdvwDt7oaQHAIpIgtWKvEJb3WreFOw0Fw/edit?gid=1232684288#gid=1232684288"
+url <- "https://docs.google.com/spreadsheets/d/11rJovQ1AwHI8HY6OiA1ZPfgrHvzC_aj9oCK7B9wfF_Y/edit?gid=72370855#gid=72370855"
 gs <- as_sheets_id(url)
 
-fb1 <- range_read(gs, sheet = "STable1") 
+fb1 <- range_read(gs, sheet = "catalago") 
 
 ```
 
@@ -98,13 +95,13 @@ label <- fb1 %>%
                 , size = c(2.5, 2)
                 , position = c(1.3, 3.5)
                 ) %>% 
-   include_image(value = "image_panoja"
-                , size = c(1, 2)
-                , position = c(0.65, 1.8)
+   include_image(value = "frijol.png"
+                , size = c(2, 2)
+                , position = c(0.68, 1.83)
                 ) %>% 
   include_image(value = "image_seed"
-                , size = c(1, 2)
-                , position = c(4.3, 1.7)
+                , size = c(2.1, 2.1)
+                , position = c(4.3, 1.87)
                 ) %>%
   include_text(value= "UNTRM code"
                , size= 4
@@ -117,7 +114,7 @@ label <- fb1 %>%
              , size =c(2.2, 2.2) 
              , position = c(2.5,1.9)
                          ) %>% 
-include_text(value= "Lugar:\n\n Lonya Chico"
+include_text(value= "Lugar:\n\n Molinopampa"
                , size= 4
                , position = c(1,0.35)
                , color = "black"
@@ -131,7 +128,7 @@ include_text(value= "Lugar:\n\n Lonya Chico"
                , font = font[2]
                , fontface = "bold"
                 ) %>% 
-    include_text(value= "Chenopodium\n quinoa"
+    include_text(value= "Phaseolus\n vulgaris"
                , fontface = "bold" 
                , size= 4
                , position = c(4.4,0.35)
@@ -142,5 +139,5 @@ include_text(value= "Lugar:\n\n Lonya Chico"
 label %>% label_print()
 
 label %>%
-  label_print(mode = "complete", filename = "lables", nlabels= 140)
+  label_print(mode = "complete", filename = "lables")
 ```
